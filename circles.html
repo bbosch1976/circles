@@ -1,0 +1,659 @@
+
+<html>
+<head>
+<title></title>
+</head>
+<body onkeydown="addCircle();drawcircles();">
+
+	<canvas id="MyCanvas"></canvas>
+	<script>
+		var canvas = document.getElementById("MyCanvas");
+		
+		function getCircle(x, y, r){
+			var c = {
+				    x:x,
+				    y:y,
+				    radius:r
+				};
+			
+			return c;
+			
+		}
+		
+		function apolloniusCircle(x1, y1, r1, x2, y2, r2, x3, y3, r3) {
+
+			 
+			  var a2 = 2 * (x1 - x2),
+			      b2 = 2 * (y1 - y2),
+			      c2 = 2 * (r2 - r1),
+			      d2 = x1 * x1 + y1 * y1 - r1 * r1 - x2 * x2 - y2 * y2 + r2 * r2,
+			      a3 = 2 * (x1 - x3),
+			      b3 = 2 * (y1 - y3),
+			      c3 = 2 * (r3 - r1),
+			      d3 = x1 * x1 + y1 * y1 - r1 * r1 - x3 * x3 - y3 * y3 + r3 * r3;
+
+			 
+
+			  var ab = a3 * b2 - a2 * b3,
+			      xa = (b2 * d3 - b3 * d2) / ab - x1,
+			      xb = (b3 * c2 - b2 * c3) / ab;
+
+			
+			  var ya = (a3 * d2 - a2 * d3) / ab - y1,
+			      yb = (a2 * c3 - a3 * c2) / ab;
+
+			  
+			  var A = xb * xb + yb * yb - 1,
+			      B = 2 * (xa * xb + ya * yb + r1),
+			      C = xa * xa + ya * ya - r1 * r1,
+			      rr = A ? (-B - Math.sqrt(B * B - 4 * A * C)) / (2 * A) : (-C / B);
+			  return isNaN(r) ? null : {x: xa + xb * rr + x1, y: ya + yb * rr + y1, radius: rr < 0 ? -rr : rr};
+			}
+
+		
+		function intersection(x0, y0, r0, x1, y1, r1) {
+	        var a, dx, dy, d, h, rx, ry;
+	        var x2, y2;
+
+	  
+	        dx = x1 - x0;
+	        dy = y1 - y0;
+	        
+	        if (dx > (r0 + r1)) {
+	            return -1;
+	        }
+	        
+	        
+	        if (dy > (r0 + r1)) {
+	            return -1;
+	        }
+	        
+	        d = Math.sqrt((dy*dy) + (dx*dx));
+
+	        if (d > (r0 + r1)) {
+	            return -1;
+	        }
+	        if (d <= Math.abs(r0 - r1)) {
+	            return -2;
+	        }
+
+	        a = ((r0*r0) - (r1*r1) + (d*d)) / (2.0 * d) ;
+
+	        x2 = x0 + (dx * a/d);
+	        y2 = y0 + (dy * a/d);
+
+	        h = Math.sqrt((r0*r0) - (a*a));
+
+	        rx = -dy * (h/d);
+	        ry = dx * (h/d);
+
+	        var xi = x2 + rx;
+	        var xi_prime = x2 - rx;
+	        var yi = y2 + ry;
+	        var yi_prime = y2 - ry;
+
+	        return [xi, xi_prime, yi, yi_prime];
+	    }
+		
+		function getOverlap(c1, c2){
+			
+			inters = intersection(c1.x, c1.y, c1.radius, c2.x,  c2.y,  c2.radius);
+			
+			if(inters == -1){
+				return 0;
+			}
+			
+			if(inters == -2){
+				return c1.radius + c2.radius;
+			}
+			
+			dy = inters[0]-inters[1];
+			dx = inters[2]-inters[3];
+			
+			return Math.sqrt((dy*dy) + (dx*dx));
+		}
+		
+		
+		
+		
+		function findLargestOverlap(c1){
+			var largest = -9999999;
+			
+			var xi = ~~(c1.x / (circleRadius*2));
+			var yi = ~~(c1.y / (circleRadius*2));
+			
+			
+			
+			for(x = xi-1; x <= xi+1; x++){
+				for(y = yi-1; y <= yi+1; y++){
+					
+					if(circles [x] && circles[x][y]){
+						
+						var cs = circles[x][y];
+						
+						for (var i = 0; i < cs.length; i++) {
+							
+							
+							var o = getOverlap(c1, cs[i]);
+							
+							if(o > largest){
+								largest = o;
+							}
+							
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+			
+			/*
+			for (var i = 0; i < circlepairs.length; i++) {
+				
+				
+				var o = getOverlap(c1, circlepairs[i].c1);
+				
+				if(o > largest){
+					largest = o;
+				}
+				
+				var o = getOverlap(c1, circlepairs[i].c2);
+				
+				if(o > largest){
+					largest = o;
+				}
+			}
+			
+			*/
+			
+			return largest;
+			
+			
+		}
+		
+		function findOverlappedCircles(c1){
+			var overlapped = [];
+			
+			
+			var xi = ~~(c1.x / (circleRadius*2));
+			var yi = ~~(c1.y / (circleRadius*2));
+			
+			
+			
+			for(x = xi-1; x <= xi+1; x++){
+				for(y = yi-1; y <= yi+1; y++){
+					
+					if(circles [x] && circles[x][y]){
+						
+						var cs = circles[x][y];
+						
+						for (var i = 0; i < cs.length; i++) {
+							var inters = intersection(c1.x, c1.y, c1.radius, cs[i].x,  cs[i].y,  cs[i].radius);
+							
+							var o = getOverlap(c1, cs[i]);
+							
+							if(o > 0.01){
+								overlapped.push(cs[i]);
+							}
+							
+							
+						}
+					}
+				}
+			}
+			
+			/*
+			for (var i = 0; i < circlepairs.length; i++) {
+				
+				
+				var inters = intersection(c1.x, c1.y, c1.radius, circlepairs[i].c1.x,  circlepairs[i].c1.y,  circlepairs[i].c1.radius);
+				
+				var o = getOverlap(c1, circlepairs[i].c1);
+				
+				if(o > 0.01){
+					overlapped.push(circlepairs[i].c1);
+				}
+				
+				inters = intersection(c1.x, c1.y, c1.radius, circlepairs[i].c2.x,  circlepairs[i].c2.y,  circlepairs[i].c2.radius);
+				
+				var o = getOverlap(c1, circlepairs[i].c2);
+				
+				if(o > 0.01){
+					overlapped.push(circlepairs[i].c2);
+				}
+			}
+			*/
+			return overlapped;
+			
+			
+		}
+		
+		
+		
+		
+		function isCorrectSide(c1, c2, c, d){
+			var g = (c.x-c1.x)*(c2.y-c1.y)-(c.y-c1.y)*(c2.x-c1.x);
+			var f = (d.x-c1.x)*(c2.y-c1.y)-(d.y-c1.y)*(c2.x-c1.x);
+			
+			if(g > 0){
+				return f > 0;
+			}
+			
+			else{
+				return f < 0;
+			}
+		}
+		
+		function findThirdCircle(c1, c2, newCircle, newRadius){
+			
+			var overlappedCircles = [];
+			var r = newCircle;
+			var smallest = 9999999;
+			
+			if(useOverLap){
+				overlappedCircles = findOverlappedCircles(newCircle);
+				
+				
+				
+				
+				for(i = 0; i< overlappedCircles.length; i++){
+					
+					var a = apolloniusCircle(c1.x, c1.y, -c1.radius, c2.x, c2.y, -c2.radius, overlappedCircles[i].x, overlappedCircles[i].y, -overlappedCircles[i].radius);
+					
+					if(a != null){
+						var co = isCorrectSide(c1, c2, newCircle, a);
+						if(!co){
+							a = apolloniusCircle(c1.x, c1.y, c1.radius, c2.x, c2.y, c2.radius, overlappedCircles[i].x, overlappedCircles[i].y, overlappedCircles[i].radius);
+						}
+						
+						
+					}
+					
+					if(a && a.radius < smallest){
+						smallest = a.radius;
+						r = a;
+					}
+					
+					
+				}
+			}
+			
+			
+			
+			var c5 = { 
+					   x:canvas.width/2, 
+					   y:canvas.height/2, 
+					   radius:Math.min(5*canvas.width/11, 5*canvas.height/11),
+					   d: 1
+					 };
+			
+			var b = apolloniusCircle(c1.x, c1.y, -c1.radius, c2.x, c2.y, -c2.radius, c5.x, c5.y, c5.radius);
+			var c = apolloniusCircle(c1.x, c1.y, c1.radius, c2.x, c2.y, c2.radius, c5.x, c5.y, -c5.radius);
+			
+			if(b.radius < r.radius){
+				
+				r = b;
+				smallest = b.radius;
+			}
+			
+			
+		
+			
+			if(r && r.x + circleRadius < 0)
+				return null;
+			if(r && r.y + circleRadius < 0)
+				return null;
+			if(r && r.x - circleRadius > canvas.width)
+				return null;
+			if(r && r.y - circleRadius > canvas.height)
+				return null;
+			
+			
+			/*if(overlappedCircles.length == 0){
+				return newCircle;
+			}*/
+			
+			
+			
+			
+			if(smallest < circleRadius/minCircleFactor){
+				return null;
+			}
+			
+			
+			
+			if(useOverLap && findLargestOverlap(r) > 0.01){
+				return null;
+			}
+			
+			
+			
+			
+			return r;
+			
+			
+		}
+		
+		
+		function computeNewCircle(c1, c2, newRadius){
+			
+		
+			var intersections = intersection(c1.x, c1.y, c1.radius + newRadius, c2.x, c2.y, c2.radius + newRadius);
+			
+			var nc1 =  {x:intersections[0], y:intersections[2], radius:newRadius};
+			var nc2 =  {x:intersections[1], y:intersections[3], radius:newRadius};
+			
+			
+			var t = c1.d + c2.d;
+			
+			if(t % 2 == 0){
+				var tmp = nc2;
+				nc2 = nc1;
+				nc1 = tmp;
+			}
+			
+			var t1 = findThirdCircle(c1, c2, nc1, newRadius);
+			
+			if(t1 != null){
+				t1.d = Math.max(c1.d, c2.d)+1;
+				return t1;
+				
+			}
+			
+			
+			var t2 = findThirdCircle(c1, c2, nc2, newRadius);
+			
+			if(t2 != null){
+				t2.d = Math.max(c1.d, c2.d)+1;
+				return t2;
+			}
+			
+			
+			
+			return null;
+			
+			
+		}
+		
+		function addSingleCircle(newCircle){
+			var xi = ~~(newCircle.x / (circleRadius*2));
+			var yi = ~~(newCircle.y / (circleRadius*2));
+			
+			if(!circles[xi]){
+				circles[xi] = [];
+			}
+			
+			if(!circles[xi][yi]){
+				circles[xi][yi] = [];
+			}
+			
+			circles[xi][yi].push(newCircle);
+		}
+		
+		function addCircle(){
+			
+			
+			while(circlepairs.length > 0){
+				var newCircle = null;
+				
+				var i = circleRadius;
+				
+				
+				if(!circlepairs[circlepairsoffset]){
+					return;
+				}
+				
+				if(circlepairs[circlepairsoffset].c1.d >= maxDepth || circlepairs[circlepairsoffset].c2.d >= maxDepth){
+					return;
+				}
+				
+				i = getNewRadius(circlepairs[circlepairsoffset].c1, circlepairs[circlepairsoffset].c2);
+				
+				newCircle = computeNewCircle(circlepairs[circlepairsoffset].c1, circlepairs[circlepairsoffset].c2, i);
+					
+				if(newCircle){
+					
+					
+					addSingleCircle(newCircle);
+					
+					
+					var np1 = {c1:circlepairs[circlepairsoffset].c1, c2:newCircle};
+					var np2 = {c1:circlepairs[circlepairsoffset].c2, c2:newCircle};
+					
+					
+					circlepairs.push(np1);
+					circlepairs.push(np2);
+					
+					
+					if(!useOverLap){
+						circlepairsoffset++;
+					}
+					return;
+				}
+					
+				circlepairsoffset++;
+				
+				
+			}
+			
+			
+			
+		}
+		
+		function addCircles(){
+			
+			for(k=0;k<numCircles; k++){
+				addCircle();
+			}
+			
+			
+			drawcircles();
+		}
+		
+		
+		
+		if (canvas.getContext) {
+			
+			function resize(){
+				if(canvas.width != document.body.clientWidth || canvas.height != document.body.clientHeight){
+					canvas.width = document.body.clientWidth ;
+					canvas.height = document.body.clientHeight ;
+					
+					ctx = canvas.getContext("2d");
+				}
+			}
+			
+			function drawcircles() {
+				
+				
+				ctx.clearRect(0, 0, 2000, 2000);
+				resize();
+				
+				for (var i = 0; i < circlepairs.length; i++) {
+					
+					ctx.strokeStyle="#000000";
+					
+					ctx.beginPath();
+					
+					ctx.arc(circlepairs[i].c1.x,circlepairs[i].c1.y,circlepairs[i].c1.radius,0,2*Math.PI);
+					
+					//ctx.rect(circlepairs[i].c1.x,circlepairs[i].c1.y,circlepairs[i].c1.radius,circlepairs[i].c1.radius);
+					
+					ctx.fillStyle = 'green';
+					
+					
+					//ctx.fillStyle = 'rgb(' + 255*r/circleRadius + ', 255, ' + 255*r/circleRadius + ')';
+					
+					
+					ctx.fill();
+					      
+					
+					
+					
+					ctx.stroke();
+					
+					ctx.beginPath();
+					
+					ctx.arc(circlepairs[i].c2.x,circlepairs[i].c2.y,circlepairs[i].c2.radius,0,2*Math.PI);
+					//ctx.rect(circlepairs[i].c2.x,circlepairs[i].c2.y,circlepairs[i].c2.radius,circlepairs[i].c2.radius);
+					
+					ctx.fill();
+					  
+					ctx.stroke();
+				}
+						
+			}
+			
+			
+			
+			
+			
+			function doAnimate(){
+				
+				init();
+				addCircles();
+				
+				
+				requestAnimationFrame(doAnimate);
+			}
+
+		
+			function getNewRadius(c1, c2){
+				
+				return circleRadius;
+				
+				var rt = circleRadius * (0.1 + 0.45 + 0.45 * Math.sin(c1.d + c2.d + r/10)  );
+				
+				if(rt > circleRadius){
+					return circleRadius;
+				}
+				else
+				{
+					return rt;	
+				}
+			}
+			
+			
+			function initializeCircles(){
+				
+				
+				var t = (0.5 + 0.4 * Math.sin(r)  );
+				
+				var c1 = { 
+						   x:canvas.width/2, 
+						   y:canvas.height/2-circleRadius/2, 
+						   radius:circleRadius*t,
+						   d: 1
+						 };
+				
+				var c2 = { 
+						   x:canvas.width/2, 
+						   y:canvas.height/2+circleRadius/2, 
+						   radius:circleRadius*(1-t),
+						   d: 1
+						 };
+				
+				
+				var c3 = { 
+						   x:canvas.width/2+circleRadius, 
+						   y:canvas.height/2-circleRadius/2, 
+						   radius:circleRadius*(1-t),
+						   d: 1
+						 };
+				
+				var c4 = { 
+						   x:canvas.width/2+circleRadius, 
+						   y:canvas.height/2+circleRadius/2, 
+						   radius:circleRadius*(t),
+						   d: 1
+						 };
+				
+				var p1 = {c1:c1, c2:c2};
+				var p2 = {c1:c3, c2:c4};
+				
+				circlepairs = [];
+				circlepairs[0] = p1;
+				//circlepairs[1] = p2;
+				
+				addSingleCircle(c1);
+				addSingleCircle(c2);
+				//addSingleCircle(c3);
+				//addSingleCircle(c4);
+				
+				
+				
+				/*
+				var c5 = { 
+						   x:canvas.width/2, 
+						   y:canvas.height/2, 
+						   radius:Math.min(canvas.width/2, canvas.height/2),
+						   d: 1
+						 };
+				
+				a = apolloniusCircle(c3.x, c3.y, -c3.radius, c4.x, c4.y, -c4.radius,  c5.x, c5.y, c5.radius, );
+				
+				var p5 = {c1:c4, c2:a};
+				circlepairs[2] = p5;
+				*/
+			}
+			
+			
+			var ctx = canvas.getContext("2d");
+			ctx.globalCompositeOperation = 'xor';
+			
+			var circleRadius;
+			var minCircleFactor;
+			var numCircles;
+			
+			
+			var useOverLap = true;
+			
+			
+			var r = 1 ;
+			var dr;
+			var circles = [];
+			
+			
+			var circlepairsoffset = 0;
+			
+
+			function init() {
+				circles = [];
+				circleRadius = 75;
+				minCircleFactor = 4;
+				numCircles = 200;
+				maxDepth = 8;
+				overlapAllowed = (2+Math.sin(r));
+				dr = 0.01
+				
+				r = r + dr;
+				
+				
+				initializeCircles();
+				circlepairsoffset = 0;
+				
+
+			}
+			resize();
+			init();
+			drawcircles();
+			doAnimate();
+			
+			
+			console.log(apolloniusCircle(400, 300, -13.333335674921779, 399.9868322625864, 353.3333340493971, -40, 399.9868322625864, 246.66666595060295, -40));
+			
+			console.log(apolloniusCircle(400, 300, -13.333335674921779, 400.009053248406,  353.3333336711534, -40, 400.009053248406, 246.6666663288466, -40));
+			
+			
+			
+
+
+		}
+	</script>
+	
+</body>
+</html>
+
