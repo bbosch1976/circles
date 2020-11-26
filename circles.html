@@ -1,3 +1,4 @@
+
 	
 	<html>
 	<head>
@@ -16,10 +17,10 @@
 		var el = document.getElementById("MyCanvas");
 		document.addEventListener('touchstart', function (e) {
 			
-			toggleIt(currentAnimation);
-			currentAnimation = (currentAnimation+1)%5;
-			toggleIt(currentAnimation);
-			
+			//toggleIt(currentAnimation);
+			//currentAnimation = (currentAnimation+1)%5;
+			//toggleIt(currentAnimation);
+			toggle(e);
 			
 			
 			  }, false);
@@ -57,7 +58,10 @@
 		
 		var currentAnimation = 0;
 		
-		function toggleAnimation(p, ev){
+		function startAnimation(ev){
+		    artMode = 'animate';
+		    
+		    for(var p=0; p<nAnimations; p++){
 			
 				if(artMode == 'paint'){
 					//nsingle[p] = 100+p*13;
@@ -75,16 +79,14 @@
 					idouble[p]=ndouble[p]+1;
 					isingle[p]=0;
 				}
-				
+		    }
 			
 		}
 		
 		function toggleIt(key){
 			
-			resetPrimes();
 			
 			
-			/*
 			if(key && (key == '1' || key == '2' || key == '3' || key == '4' || key == '5')){
 				currentAnimation = parseInt(key)-1;
 				
@@ -98,16 +100,12 @@
 				}
 			}
 			
-			*/
+			
 			 
-			if(key == null){
-				for(var p=0; p<nAnimations; p++){
-					toggleAnimation(p, null);
-				}
-			}
+			
+
 			
 			
-			artMode = 'animate';
 			
 		}
 		
@@ -453,8 +451,8 @@
 				numRememberCircles : 400,
 				rememberCircleDist : -Math.PI*.2,
 				circleFactor : 50,
-				internalRadius : .1,
-				externalRadius : .1,
+				internalRadius : .2,
+				externalRadius : .2,
 				externalBorderColor : { r : 255, g : 255, b : 255, t : 1},
 				circleColor : [],
 				circleColor2 : [],
@@ -468,8 +466,8 @@
 			numRememberCircles : 400,
 			rememberCircleDist : -Math.PI*.1,
 			circleFactor : 50,
-			internalRadius : .1,
-			externalRadius : .1,
+			internalRadius : .2,
+			externalRadius : .2,
 			externalBorderColor : { r : 255, g : 255, b : 255, t : 1},
 			circleColor : [],
 			circleColor2 : [],
@@ -533,12 +531,9 @@
 		var globalSpeedFactor = 10;
 		var o = 1000;
 		primes = [];
-	 
-		
+	
 		
 		function resetPrimes(){
-			
-			
 			for(i=0;i<6;i++){
 				primes[i] = [];
 
@@ -546,52 +541,22 @@
 				  	var u = Math.floor(getRnd() * 6);
 					primes[i].push( Math.floor(getRnd() * (o))/2 + o*u );
 				}
+				
 			}
-			
-			console.log(primes);
-			/*
-			primes[0] = [5097.5, 2174, 204.5, 5236, 228.5, 4179.5];
-			primes[1] = [1177, 10, 1203, 1223, 1220.5, 3209.5];
-			primes[2] = [4187.5, 2098, 4416, 4463.5, 3428.5, 3338];
-			primes[3] = [2231.5, 2204, 1408, 131.5, 3359.5, 2110.5];
-			primes[4] = [3372.5, 4244, 1186.5, 350.5, 5310.5, 2256.5];
-			primes[5] = [1176, 1474.5, 2409, 2053.5, 3009, 2288];
-			*/
-			
-			/*
-			primes[0] = [3206.5, 233.5, 5237.5, 4183, 164, 4091.5]
-			primes[1] = [2380.5, 3345, 2145, 1235.5, 2189, 30]
-			primes[2] = [328, 2473, 434, 3.5, 1358.5, 2092.5]
-			primes[3] = [5240, 1032.5, 2360, 5421.5, 5437.5, 3407]
-			primes[4] = [1264.5, 3459.5, 1251.5, 5265, 1042, 3009.5]
-			primes[5] = [252.5, 4309.5, 1311, 2390.5, 3490.5, 1054]
-			*/
-			/*
-			primes[0] = [1080.5, 5445.5, 471, 2287, 2495.5, 3193]
-			primes[1] = [1200.5, 2042, 287, 6.5, 2004, 1008.5]
-			primes[2] = [2333, 4242.5, 2175, 208, 5277, 5192]
-			primes[3] = [1024, 4441, 5024.5, 5050.5, 3389, 3091]
-			primes[4] = [1435, 4095.5, 5374.5, 184.5, 2423, 1333.5]
-			primes[5] = [3428, 163, 299, 1363, 1454.5, 1023.5]
-			*/
-			/*
-			primes[0] = [2381, 14.5, 3253.5, 0.5, 3334, 4335.5];
-			primes[1] = [4.5, 3100, 1153.5, 5286, 4111, 133.5];
-			primes[2] = [3208, 2356.5, 4429.5, 4112, 1241, 3096];
-			primes[3] = [4084.5, 383.5, 180, 1343.5, 2339, 1378];
-			primes[4] = [378, 5242, 5250.5, 1494, 3350, 1181.5];
-			primes[5] = [3136.5, 1127, 5228.5, 450.5, 3106, 2201.5];
-			*/
-			
-			/*
-			primes[0] = [3187, 2293.5, 1145.5, 1139, 3067.5, 3143.5];
-			primes[1] = [11210, 1170.5, 5491.5, 1204, 1150.5, 474];
-			primes[2] = [1231, 2235.5, 2.5, 11381, 2029.5, 5125.5];
-			primes[3] = [4442.5, 1, 4191.5, 2368, 4078.5, 5483.5];
-			primes[4] = [1, 1, 81.5, 344.5, 4291, 5288];
-			primes[5] = [1, 2124, 1111, 3166.5, 0, 1];
-			*/
+		}
+		
+		
+		
+		function resetPrimes(){
+			for(i=0;i<6;i++){
+				primes[i] = [];
 
+				for(j=0;j<6;j++){
+				  	var u = Math.floor(getRnd() * 6);
+					primes[i].push( Math.floor(getRnd() * (o))/2 + o*u );
+				}
+				
+			}
 		}
 		
 		resetPrimes();
@@ -1597,7 +1562,7 @@
 					tr = .4;
 				}
 				
-				tr = .7;
+				tr = .5;
 				var cr = getSettings().circleColor;
 				
 				if(i == 1){
@@ -1753,7 +1718,7 @@
 		    }
 			
 				
-			function drawcircles(prevCircles, mode) {
+			function drawcircles(prevCircles) {
 	
 				color = 'green';
 				
@@ -1761,51 +1726,28 @@
 				
 				
 				for (var i = 0; i < circles.length; i++) {
+					/*
+					if(i == 0){
+						ctx.moveTo(circles[i].x, circles[i].y);
+					}
+					else{
+						ctx.lineTo(circles[i].x, circles[i].y);
+						ctx.lineWidth=1;
+						ctx.strokeStyle = "rgba(255,255,255," + 1 + ")";
+						ctx.stroke();
+						
+					}
+						*/
+					
+					
+					
 					
 					
 					ctx.strokeStyle=bgcolor;
 					ctx.lineWidth=1;
 					
-					if(mode == 0){
-						if(prevCircles){
-							
-							var pi = prevCircles.length-1;
-						
-							
-							if(isCircleVisible(circles[i]) & isCircleVisible(prevCircles[pi][i]))
-							{
-								ctx.strokeStyle='white';
-								
-								
-								/*
-								ctx.beginPath();
-								ctx.moveTo(circles[0].x, circles[0].y);
-								ctx.lineTo(circles[1].x, circles[1].y);
-								ctx.closePath();
-							    ctx.stroke();
-							    */
-							    ctx.beginPath();
-							    ctx.moveTo(circles[i].x, circles[i].y);
-							    ctx.lineTo(prevCircles[pi][i].x, prevCircles[pi][i].y);
-							    ctx.closePath();
-							    ctx.stroke();
-							    
-							    
-							   
-								
-							    
-							}
-							
-						}
-					}
-					else{
-						drawCircle(circles[i], color, i);
-					}
 					
-					
-					
-					
-					
+					drawCircle(circles[i], color, i);
 					
 					/*
 					if(prevCircles && prevCircles[i]){
@@ -1916,36 +1858,6 @@
 				}
 			}
 			
-			function loopCircles(mode){
-				var nDivs = 1;
-				
-				var prevCircles = [];
-			
-				for(var u=0; u<nDivs; u++){
-					for(var i=0; i<nAnimations; i++){
-						
-						prevCircles.push([]);
-						
-						if(isAnimationActive(i)){
-							iAnimation = i;
-							
-							
-							for(f=u*getSettings().numRememberCircles/nDivs; f<(u+1)*getSettings().numRememberCircles/nDivs; f++){
-
-								irememberCircle = f;
-								
-								var pc = init(irememberCircle, (f + iteration*2) % getSettings().numRememberCircles);
-								
-								addCircles();
-								drawcircles(prevCircles, mode);
-								
-								prevCircles.push(circles.slice());
-							}
-						}
-					}
-				}
-			}
-			
 			function doAnimate(){
 				
 				for(i=0;i<6;i++){
@@ -1965,8 +1877,34 @@
 				var nDivs = 1;
 				
 				
-				//loopCircles(0);
-				loopCircles(1);
+				
+				for(var u=0; u<nDivs; u++){
+					for(var i=0; i<nAnimations; i++){
+						
+						
+						if(isAnimationActive(i)){
+							iAnimation = i;
+							var prevCircles = null;
+							
+							for(f=u*getSettings().numRememberCircles/nDivs; f<(u+1)*getSettings().numRememberCircles/nDivs; f++){
+								
+								
+								
+								
+								irememberCircle = f;
+								
+								var pc = init(irememberCircle, (f + iteration*2) % getSettings().numRememberCircles);
+								
+								addCircles();
+								drawcircles(prevCircles);
+								
+								prevCircles = circles.slice();
+							}
+						}
+						
+						
+					}
+				}
 				
 				
 				canvas.getContext("2d").drawImage(m_canvas, 0, 0);
@@ -2058,9 +1996,6 @@
 			
 			function isCircleVisible(c){
 				
-				if(!c){
-					return;
-				}
 				var mn = getEnclosingCircleRadius();
 				
 				var dx = c.x - (viewRect.l + (viewRect.r-viewRect.l)/2);
@@ -2102,8 +2037,8 @@
 				
 				
 				
-				var cs1 = Math.cos( ((r[3]+offset)*speed  )  );
-				var s1 = Math.sin( ((r[3]+offset)*speed )  );
+				var cs1 = Math.cos( ((r[3]+offset+iter/200)*speed  )  );
+				var s1 = Math.sin( ((r[3]+offset+iter/200)*speed )  );
 				
 				
 				
@@ -2120,6 +2055,11 @@
 				
 				nx2 = nx2 + x;
 				ny2 = ny2 + y;
+				u=0.5;
+				
+				
+				cr-=  iter ;
+				
 				
 				var c1 =  {x:nx1, y:ny1, radius:cr*u};
 				var c2 =  {x:nx2, y:ny2, radius:cr*(1-u)};
@@ -2426,10 +2366,10 @@
 			sb = [Math.PI*g, Math.PI*g, Math.PI*g, Math.PI*g, Math.PI*g, Math.PI*g, Math.PI*g, Math.PI*g];
 			
 			
-			/*
+			
 			rb = [getRnd()*rr, getRnd()*rr, getRnd()*rr, getRnd()*rr, getRnd()*rr, getRnd()*rr, getRnd()*rr, getRnd()*rr];
 			sb = [getRnd()*rr, getRnd()*rr, getRnd()*rr, getRnd()*rr, getRnd()*rr, getRnd()*rr, getRnd()*rr, getRnd()*rr];
-			*/
+			
 			
 			
 			
@@ -2466,7 +2406,7 @@
 			
 			var rsettings = [{},{}];
 			
-			toggle(null);
+			startAnimation(null);
 			
 			var iAnimation = 0;
 			
@@ -2497,10 +2437,6 @@
 				  console.log('alpha = ' + alpha);
 				  console.log('beta = ' + beta);
 				  console.log('gamma = ' + gamma);
-				  
-				 // primes[1][0] = 500 + alpha;
-				 // primes[1][1] = 500 + beta;
-				 // primes[1][2] = 500 + gamma;
 				}
 			
 			
